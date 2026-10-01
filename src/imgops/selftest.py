@@ -1,4 +1,6 @@
-"""imgops selftest: 5 checks sobre fixtures sinteticas de 256px, ~20s total.
+"""imgops selftest: 5 checks sobre fixtures sinteticas 250x246, ~25s total.
+
+La fixture no es multiplo de 8 a proposito: ejercita el unpad de LaMa.
 
 1. info sobre PNG (sin torch) -> dims/modo + torch NO importado.
 2. mask desde ROIs -> area esperada +/-2% + overlay generado.
@@ -23,12 +25,15 @@ INPAINT_BUDGET_S = 60
 
 
 def _fixture(tmp):
+    # 250x246: ninguna dimension es multiplo de 8 -> ejercita el unpad de LaMa
+    # (simple-lama rellena a mod 8 y devuelve con padding).
+    W, H = 250, 246
     rng = np.random.default_rng(42)
-    img = rng.integers(0, 256, (256, 256, 3), dtype=np.uint8)
+    img = rng.integers(0, 256, (H, W, 3), dtype=np.uint8)
     src = tmp / "fix.png"
     Image.fromarray(img).save(src)
-    m = np.zeros((256, 256), dtype=np.uint8)
-    m[48:80, 48:80] = 255  # 32x32 = 1024 px = 1.5625%
+    m = np.zeros((H, W), dtype=np.uint8)
+    m[48:80, 48:80] = 255  # 32x32 = 1024 px
     msk = tmp / "fix-mask.png"
     Image.fromarray(m).save(msk)
     return src, msk, img, m
@@ -37,7 +42,7 @@ def _fixture(tmp):
 def check_info(tmp):
     src, _, _, _ = _fixture(tmp)
     rec = info.run(src)
-    assert (rec["width"], rec["height"]) == (256, 256), rec
+    assert (rec["width"], rec["height"]) == (250, 246), rec
     assert rec["mode"] == "RGB", rec
     assert "torch" not in sys.modules, "info importo torch"
     return "info dims+modo OK, sin torch"
@@ -47,7 +52,7 @@ def check_mask(tmp):
     src, _, _, _ = _fixture(tmp)
     rec = mask.run(src, boxes=["48,48,32,32"], dilate=0,
                    output=tmp / "m.png", overlay=tmp / "o.png")
-    expected = 100.0 * 1024 / (256 * 256)
+    expected = 100.0 * 1024 / (250 * 246)
     assert abs(rec["coverage_pct"] - expected) <= 2.0, rec
     assert Path(rec["overlay"]).exists(), rec
     return "mask area %.2f%% (esperado %.2f%%) + overlay OK" % (
@@ -60,6 +65,7 @@ def check_inpaint(tmp):
     rec = inpaint.run(src, msk, output=tmp / "out.png")
     elapsed = time.perf_counter() - t0
     assert elapsed < INPAINT_BUDGET_S, "inpaint tardo %.1fs" % elapsed
+    assert (rec["width"], rec["height"]) == (250, 246), rec
     with Image.open(rec["output"]) as im:
         out = np.asarray(im.convert("RGB")).astype(np.int16)
     outside = (m == 0)
@@ -72,11 +78,12 @@ def check_inpaint(tmp):
 
 def check_transform(tmp):
     src, _, _, _ = _fixture(tmp)
-    rec = transform.run(src, output=tmp / "t.png", resize="128x128")
-    assert (rec["width"], rec["height"]) == (128, 128), rec
-    rec2 = transform.run(rec["output"], output=tmp / "t2.png", resize="256x256")
-    assert (rec2["width"], rec2["height"]) == (256, 256), rec2
-    return "transform roundtrip 256->128->256 OK"
+    rec = transform.run(src, output=tmp / "t.png", resize="125x123")
+    assert (rec["width"], rec["height"]) == (125, 123), rec
+    rec2 = transform.run(rec["output"], output=tmp / "t2.png",
+                         resize="250x246")
+    assert (rec2["width"], rec2["height"]) == (250, 246), rec2
+    return "transform roundtrip 250x246->125x123->250x246 OK"
 
 
 def check_lock():

@@ -78,6 +78,11 @@ Python compartido / WinGet. El paquete empieza donde hay un PNG en disco.
 - **`torch.jit.load` FutureWarning**: cosmético (stderr); importa para el futuro MCP
   stdio (todo log a stderr), no para el CLI.
 - Modelo ausente/hash distinto → `inpaint` aborta; restaurarlo a la ruta fija.
+- **OneDrive**: este repo vive dentro del árbol OneDrive y el `.venv` son
+  ~24k archivos: pausar la sincronización **antes** de `pip install` o
+  `selftest` (OneDrive bloquea DLLs → `WinError 5`, y consume 1 núcleo
+  hasheando). Comandos: `Get-Process -Name 'OneDrive*' | Stop-Process -Force`
+  para pausar; reanudar con el ejecutable de `$env:LOCALAPPDATA\OneDrive`.
 
 ## Gatillo MCP (medible, no estimado)
 

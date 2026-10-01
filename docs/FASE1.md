@@ -70,3 +70,7 @@ y rechazo sandbox fuera de raíces.
 - `simple-lama-inpainting` en el compartido: desinstalar cuando se confirme que
   nada fuera de este `.venv` lo necesita (hoy solo roto vs Pillow 12, inofensivo).
 - Validación visual única vs `review/r10-lama-orbit.png` (Fase 2, con ojos).
+- OneDrive: `.venv` dentro del árbol sincronizado (768 MB / 24k archivos).
+  Regla: pausar sync antes de `pip`/`selftest` (locks `WinError 5` + CPU).
+  Definitivo (pendiente de decisión): `.venv` fuera + junction, o repo fuera
+  de OneDrive.

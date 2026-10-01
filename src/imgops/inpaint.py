@@ -99,6 +99,20 @@ def run(input_path, mask_path, output=None, dry_run=False, cwd=None):
     gen = np.asarray(lama(Image.fromarray(orig), Image.fromarray(m)))
     if np.isnan(gen).any():
         raise ValueError("LaMa devolvio NaN")
+    # simple-lama rellena a multiplo de 8 (abajo/derecha, simetrico) y devuelve
+    # con padding (ej. 854 -> 856). Se recorta a dims del input: la salida del
+    # comando siempre mide lo mismo que la entrada (R11 conservo el padding).
+    oh, ow = orig.shape[:2]
+    gh, gw = gen.shape[:2]
+    unpadded_from = None
+    if (gh, gw) != (oh, ow):
+        if gh < oh or gw < ow:
+            raise ValueError(
+                "LaMa devolvio %dx%d, menor que el input %dx%d"
+                % (gw, gh, ow, oh)
+            )
+        unpadded_from = [gw, gh]
+        gen = gen[:oh, :ow]
     sel = (m > 0)[:, :, None]
     out = np.where(sel, gen, orig).astype(np.uint8)
     dest = atomic_save_pil(Image.fromarray(out), p["output"])
@@ -109,5 +123,7 @@ def run(input_path, mask_path, output=None, dry_run=False, cwd=None):
         "method": "lama-big",
         "composited": True,
     }
+    if unpadded_from is not None:
+        rec["unpadded_from"] = unpadded_from
     rec.update(describe_file(dest))
     return rec
