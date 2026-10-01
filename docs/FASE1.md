@@ -66,9 +66,14 @@ y rechazo sandbox fuera de raíces.
 
 - ~~`requirements.txt` huérfano y `run_all_tests.py` + `tests/` del otro dominio~~
   → eliminados 2026-10-01 (quedó `tests/smoke/`); `README.md` actualizado.
-- ~~Desinstalar `simple-lama-inpainting` del compartido~~ → **NO se desinstala**:
-  `Temp/opencode/lama_run*.py` (evidencia R11, regla 13) lo importan desde el
-  Python compartido. Cuesta cero dejarlo; quitarlo rompería re-correr R11.
+- ~~Desinstalar `simple-lama-inpainting` del compartido~~ → **desinstalado
+  2026-10-01** (`pip uninstall -y`, verificado: ausente, `pip check` limpio
+  salvo `starlette` preexistente, torch/pandas/PIL/cv2 intactos). Mapa de
+  impacto previo: ningún proyecto lo importaba salvo `Temp/opencode/lama_run*.py`
+  (evidencia R11, que por orden del usuario no se re-corre). Efecto: desaparece
+  el vector del incidente original (re-degradar Pillow). **Advertencia: NO
+  reinstalar** (re-degradaría Pillow 12→9.5). `fire`/`six`/`termcolor` se quedan
+  (genéricos, posiblemente usados por otros).
 - Validación visual única vs `review/r10-lama-orbit.png` → hecha en Fase 2 (PASS).
 - OneDrive: `.venv` dentro del árbol sincronizado (768 MB / 24k archivos).
   Regla: pausar sync antes de `pip`/`selftest` (locks `WinError 5` + CPU).
