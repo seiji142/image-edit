@@ -45,6 +45,28 @@ Propuesto op.md: Pillow 12 + opencv 4.13. Ejecutado:
 Desvío documentado: opencv queda en 4.11 porque 4.13 exige numpy 2 y eso mata el
 servicio de memoria. Si el futuro `imgops` necesitara opencv ≥4.13, vive en su `.venv`.
 
+### Antes / después (solo lo tocado)
+
+| Paquete | Antes (freeze) | Después |
+|---|---|---|
+| Pillow | 9.5.0 | **12.2.0** |
+| numpy | 1.26.4 | 1.26.4 (subió a 2.2.6 en el intento, revertido) |
+| opencv-python | 4.11.0.86 | 4.11.0.86 (subió a 4.13.0.90 en el intento, revertido) |
+| resto | — | intacto (incl. torch 2.14.1+cpu, yt-dlp 2026.8.19) |
+
+### Notas de ejecución
+
+- `WinError 5` (DLL `~umpy.libs/libopenblas...` bloqueado) en el primer intento de
+  subir numpy: transitorio, el reintento completó limpio. Si reaparece, hay un proceso
+  Python con numpy cargado (revisar puentes MCP) antes de reintentar, nunca `--user`.
+- opencv 4.13: se eligió `4.13.0.90` (primera build 4.13 disponible en el índice;
+  `4.13.0.92` también existía). Revertido por el motivo de arriba, no por el build.
+- `pip` del compartido sigue en 22.2.2 (aviso de 26.2.1 ignorado: fuera de alcance,
+  "no tocar nada" por higiene).
+- `simple-lama-inpainting` en el compartido: roto por diseño desde Pillow 12
+  (exige `pillow<10`). No se desinstala todavía para no dejar cero vías LaMa hasta
+  que el `.venv` de Fase 1 exista y pase `selftest`.
+
 ## F0.4 Regla escrita
 
 `templates/web-design-tutorials/install.ps1` (paso 2): pin `pillow==12.2.0` +
@@ -54,8 +76,8 @@ comentario `REGLA-COMPARTIDO` (nada de `pip install` sin pin/manifiesto; pesadas
 ## Datos para Fase 1
 
 - `big-lama.pt` en `~/.cache/torch/hub/checkpoints/`, SHA256
-  `7BA7AA7A...C9E6B4C` (hash completo en bitácora de sesión). Cargar desde ruta fija,
-  sin descarga en inferencia.
+  `7BA7AA7AC37A4D41FDBBEBA3A2AF7EAD18058552997E3A3CD1A3B2210C9E6B4C`.
+  Cargar desde ruta fija y verificar este hash al arrancar; sin descarga en inferencia.
 - Efecto colateral del smoke de chromadb: descargó `all-MiniLM-L6-v2` (~79 MB) a
   `~/.cache/chroma` (caché, inofensivo).
 - `simple-lama-inpainting` 0.1.2 sigue instalado en el compartido pero no funcional
