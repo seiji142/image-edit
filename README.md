@@ -115,7 +115,6 @@ thumbnails base64 · URLs/cookies/modelos por parámetro · MCP global.
 ├── tests/smoke/            # wrapper pytest del selftest
 ├── requirements.lock.txt   # pins + hashes (--require-hashes)
 ├── known-good.txt          # freeze plano (oraculo del check lock)
-├── requirements.txt        # deps de tooling del repo (pytest, ruff, ...)
 ├── docs/FASE0.md           # reparacion del env compartido
 ├── docs/FASE1.md           # construccion del paquete (este trabajo)
 └── logs/imgops-usage.jsonl # medicion del gatillo MCP (local, ignorada)

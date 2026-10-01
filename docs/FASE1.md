@@ -64,12 +64,12 @@ y rechazo sandbox fuera de raíces.
 
 ## Pendiente (no Fase 1)
 
-- `requirements.txt` del esqueleto (fastapi/uvicorn/...) no lo usa nada
-  (venv y CI usan el lock): recortar o eliminar con orden explícita.
-- `run_all_tests.py` / `tests/{unit,integration,...}` del otro dominio: sin uso.
-- `simple-lama-inpainting` en el compartido: desinstalar cuando se confirme que
-  nada fuera de este `.venv` lo necesita (hoy solo roto vs Pillow 12, inofensivo).
-- Validación visual única vs `review/r10-lama-orbit.png` (Fase 2, con ojos).
+- ~~`requirements.txt` huérfano y `run_all_tests.py` + `tests/` del otro dominio~~
+  → eliminados 2026-10-01 (quedó `tests/smoke/`); `README.md` actualizado.
+- ~~Desinstalar `simple-lama-inpainting` del compartido~~ → **NO se desinstala**:
+  `Temp/opencode/lama_run*.py` (evidencia R11, regla 13) lo importan desde el
+  Python compartido. Cuesta cero dejarlo; quitarlo rompería re-correr R11.
+- Validación visual única vs `review/r10-lama-orbit.png` → hecha en Fase 2 (PASS).
 - OneDrive: `.venv` dentro del árbol sincronizado (768 MB / 24k archivos).
   Regla: pausar sync antes de `pip`/`selftest` (locks `WinError 5` + CPU).
   Definitivo (pendiente de decisión): `.venv` fuera + junction, o repo fuera
