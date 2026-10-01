@@ -3,6 +3,8 @@ node_modules/
 __pycache__/
 *.pyc
 .pytest_cache/
+.venv/
+venv/
 
 # Entorno
 .env
@@ -11,6 +13,7 @@ __pycache__/
 
 # Logs
 *.log
+imgops-usage.jsonl
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

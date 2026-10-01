@@ -1,5 +1,11 @@
 ﻿# Contexto adicional (stack, esquema de BD, etc.)
 
+## imgops (repo image-edit)
+
+- **Qué es:** toolkit local de edición de imágenes (LaMa CPU + máscaras + diffs).
+- **Cuándo usarlo:** screenshots con texto/UI horneados, dims, crop/resize/convert, cuantificar diffs.
+- **Ayuda:** `imgops --help` (leer el help solo cuando se necesite, no por defecto).
+
 ## Stack Tecnologico
 - Frontend: HTML5, CSS3, JavaScript ES6+
 - Backend: [Por definir]

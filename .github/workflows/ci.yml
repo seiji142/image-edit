@@ -1,15 +1,13 @@
 name: CI
 
-# Compuerta externa: main exige este workflow en verde (branch protection).
-# Adaptado del template Proyecto AI/templates/gitflow-scaffold 2026.09.25
-# (stack Python, patron youtube-transcripts d4967b6): solo tests offline,
-# sin red ni API keys. La suite completa (API/MCP) corre solo en local
-# via scripts/suite_runner.py.
+# image-edit: install limpio reproducible desde el lock + selftest completo.
+# Valida A1 (instalacion limpia) en cada push/PR a main.
+
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main]
   push:
-    branches: [main, develop, "feature/*"]
+    branches: [main]
 
 jobs:
   build:
@@ -20,13 +18,10 @@ jobs:
         with:
           python-version: "3.10"
           cache: pip
-      - name: Instalar dependencias
-        run: pip install -r requirements.txt
-      - name: Tests unitarios
-        run: python -m pytest tests/unit -q
-      - name: Validadores (35 tests)
-        run: python tests/scripts/test_validators.py
-      - name: Rate limit TPD (38 tests)
-        run: python tests/scripts/test_rate_limit_tpd.py
-      # Variante B del template: lint N/A por ahora (ruff en requirements
-      # pero sin verificacion local; agregar `ruff check` al gate cuando se adopte)
+      - name: Instalar desde lock con hashes
+        run: >
+          python -m pip install --require-hashes -r requirements.lock.txt
+          --extra-index-url https://download.pytorch.org/whl/cpu
+      - name: Selftest (5 checks, incluye inferencia LaMa CPU)
+        run: python cli.py selftest
+        timeout-minutes: 15
